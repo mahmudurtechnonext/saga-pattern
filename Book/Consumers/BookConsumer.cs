@@ -25,6 +25,12 @@ namespace Book.Consumers
                 var books = _mapper.Map<List<Models.Book>>(context.Message.Books);
                 await _context.AddRangeAsync(books);
                 await _context.SaveChangesAsync();
+
+                await _publishEndpoint.Publish(new CreateBookSuccess()
+                {
+                    CorrelationId = context.Message.CorrelationId,
+                    StudentId = books[0].StudentId,
+                });
             }
             catch (Exception ex)
             {
